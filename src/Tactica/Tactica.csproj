@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The "Tactica" package: Roslyn analyzers for the tactical patterns of Domain-Driven Design. No library: the
+    analyzer goes to analyzers/dotnet/cs and the configuration to buildTransitive.
+  -->
+  <PropertyGroup>
+    <!-- netstandard2.0 so Visual Studio can load the analyzers; offline builds use net10.0 (see Directory.Build.props). -->
+    <TargetFramework Condition="'$(TacticaOfflineRoslyn)' != 'true'">netstandard2.0</TargetFramework>
+    <TargetFramework Condition="'$(TacticaOfflineRoslyn)' == 'true'">net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <PackageId>Tactica</PackageId>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoWarn>$(NoWarn);NU5128;RS2008</NoWarn>
+    <Description>Roslyn analyzers for the tactical patterns of Domain-Driven Design: aggregates that guard their state, value objects that are immutable and compared by value, aggregates referenced by id, repositories only for aggregate roots, and domain events raised by their aggregate. Works with your own base classes. Each warning tells a coding agent what to write instead.</Description>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TacticaOfflineRoslyn)' != 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TacticaOfflineRoslyn)' == 'true'">
+    <Reference Include="Microsoft.CodeAnalysis" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.dll" Private="false" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.CSharp.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="buildTransitive/**" Pack="true" PackagePath="buildTransitive/" />
+    <None Include="buildTransitive/Tactica.props" Pack="true" PackagePath="build/" />
+    <None Include="buildTransitive/Tactica.targets" Pack="true" PackagePath="build/" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

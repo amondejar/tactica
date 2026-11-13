@@ -1,0 +1,24 @@
+<Project>
+  <!--
+    Tactica settings the analyzers can read. Set them in Directory.Build.props, for example:
+
+      <TacticaAggregateRoots>MyCompany.Domain.AggregateRoot</TacticaAggregateRoots>
+      <TacticaExampleAggregate>src/Domain/Orders/Order.cs</TacticaExampleAggregate>
+
+    See https://github.com/amondejar/tactica#configuration
+  -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="TacticaAggregateRoots" />
+    <CompilerVisibleProperty Include="TacticaEntities" />
+    <CompilerVisibleProperty Include="TacticaValueObjects" />
+    <CompilerVisibleProperty Include="TacticaDomainEvents" />
+    <CompilerVisibleProperty Include="TacticaRepositorySuffixes" />
+    <CompilerVisibleProperty Include="TacticaRaiseMethods" />
+    <CompilerVisibleProperty Include="TacticaDefaultConventions" />
+    <CompilerVisibleProperty Include="TacticaExampleAggregate" />
+    <CompilerVisibleProperty Include="TacticaExampleValueObject" />
+    <CompilerVisibleProperty Include="TacticaExampleDomainEvent" />
+    <CompilerVisibleProperty Include="TacticaExampleRepository" />
+    <CompilerVisibleProperty Include="TacticaBaselineMode" />
+  </ItemGroup>
+</Project>

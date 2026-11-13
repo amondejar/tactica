@@ -1,0 +1,6 @@
+<Project>
+  <!-- The samples build like a user's project: not with this repository's settings. -->
+  <PropertyGroup>
+    <TacticaVersion Condition="'$(TacticaVersion)' == ''">0.1.0-preview.1</TacticaVersion>
+  </PropertyGroup>
+</Project>

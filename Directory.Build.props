@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>preview.1</VersionSuffix>
+    <Authors>Antonio Mondéjar</Authors>
+    <Copyright>© Antonio Mondéjar</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/amondejar/tactica</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/amondejar/tactica</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>ddd;domain-driven-design;aggregate;value-object;roslyn;analyzers;architecture;ai;agents;copilot;claude</PackageTags>
+
+    <!--
+      Offline builds (no access to nuget.org) can set TacticaOfflineRoslyn=true: the analyzer then targets net10.0 and
+      compiles against the Roslyn assemblies bundled with the .NET SDK. Published packages are always netstandard2.0.
+    -->
+    <TacticaRoslynDir Condition="'$(TacticaRoslynDir)' == ''">$(MSBuildExtensionsPath)/DotnetTools/dotnet-format/</TacticaRoslynDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="/" Visible="false" Condition="Exists('$(MSBuildThisFileDirectory)icon.png')" />
+  </ItemGroup>
+</Project>

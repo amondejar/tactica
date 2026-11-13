@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    A console test runner with no test framework: the same tests run in CI and in offline builds, where xUnit cannot
+    be restored. dotnet run (in this folder) runs them all; a name filter runs a subset.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);RS1035;RS1036;RS1038</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Tactica/Tactica.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TacticaOfflineRoslyn)' != 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TacticaOfflineRoslyn)' == 'true'">
+    <Reference Include="Microsoft.CodeAnalysis" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.dll" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.CSharp.dll" />
+  </ItemGroup>
+
+</Project>

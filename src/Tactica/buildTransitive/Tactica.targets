@@ -1,0 +1,23 @@
+<Project>
+  <!--
+    The baseline: findings accepted when Tactica was adopted, so only new code has to follow the rules. The nearest
+    tactica.baseline in this folder or above is used; "dotnet tactica baseline" writes it.
+  -->
+  <PropertyGroup>
+    <TacticaBaselineFile Condition="'$(TacticaBaselineFile)' == ''">$([MSBuild]::GetPathOfFileAbove('tactica.baseline', '$(MSBuildProjectDirectory)'))</TacticaBaselineFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TacticaBaselineMode)' != 'true' and '$(TacticaBaselineFile)' != '' and Exists('$(TacticaBaselineFile)')">
+    <AdditionalFiles Include="$(TacticaBaselineFile)" />
+  </ItemGroup>
+
+  <!--
+    "dotnet tactica baseline" builds with TacticaBaselineMode=true and TacticaBaselineLogDir set, and reads every finding
+    from these logs (one per project and target framework).
+  -->
+  <Target Name="_TacticaBaselineLog" BeforeTargets="CoreCompile" Condition="'$(TacticaBaselineMode)' == 'true' and '$(TacticaBaselineLogDir)' != ''">
+    <PropertyGroup>
+      <ErrorLog>$([System.IO.Path]::Combine('$(TacticaBaselineLogDir)', '$(MSBuildProjectName).$(TargetFramework).$([System.Guid]::NewGuid().ToString("N")).sarif')),version=2.1</ErrorLog>
+    </PropertyGroup>
+  </Target>
+</Project>

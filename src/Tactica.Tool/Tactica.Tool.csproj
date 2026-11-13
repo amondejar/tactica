@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- net8.0 runs on every supported SDK (RollForward=Major). -->
+    <TargetFramework Condition="'$(TacticaOfflineRoslyn)' != 'true'">net8.0</TargetFramework>
+    <TargetFramework Condition="'$(TacticaOfflineRoslyn)' == 'true'">net10.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>tactica</ToolCommandName>
+    <PackageId>Tactica.Tool</PackageId>
+    <AssemblyName>tactica</AssemblyName>
+    <Description>The command line of Tactica, the DDD tactical-pattern analyzers. "dotnet tactica baseline" records the findings of an existing code base, so that only new code has to follow the rules.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
