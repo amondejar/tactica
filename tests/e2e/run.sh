@@ -61,7 +61,7 @@ rm -rf "$fixed/bin" "$fixed/obj"   # the copied restore output points at the oth
 dotnet format analyzers "$fixed" --diagnostics TAC001 TAC002 TAC005 TAC010 TAC012 TAC013 TAC030 --severity warn -v diag > "$work/format.log" 2>&1 || { cat "$work/format.log"; exit 1; }
 check "dotnet format applies every fix it was asked for" eval '! grep -q "Unable to fix" "$work/format.log"'
 dotnet build "$fixed" --no-incremental > "$work/build.log" 2>&1 || { grep -E "error" "$work/build.log" | head -20; echo "  FAIL  the fixed sample does not compile"; exit 1; }
-if [ "$(rules)" != "TAC003 TAC020 TAC021" ]; then grep -vE "^\s*$" "$work/format.log" | tail -40; fi
+if [ "$(rules)" != "TAC003 TAC020 TAC021" ]; then echo "  --- dotnet format log"; grep -vE '^[[:space:]]*$' "$work/format.log" | grep -v "warning TAC" | tail -60 | sed 's/^/  | /'; fi
 check "the fixed sample compiles and only the design findings remain: $(rules)" eval '[ "$(rules)" = "TAC003 TAC020 TAC021" ]'
 check "aggregate state is private and collections are read-only" eval 'grep -q "public decimal Total { get; private set; }" "$fixed/Billing/Invoice.cs" && grep -q "public IReadOnlyList<string> Payments => _payments;" "$fixed/Billing/Invoice.cs"'
 
