@@ -13,7 +13,8 @@ version="0.0.0-e2e.$(date +%s)"
 feed="$work/feed"
 pass=0
 # Windows (Git Bash): paths written into files must be native.
-native() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else echo "$1"; fi; }
+# Long names: dotnet format skips a project whose path it was given with 8.3 short names (RUNNER~1).
+native() { if command -v cygpath >/dev/null 2>&1; then cygpath -m -l "$1"; else echo "$1"; fi; }
 
 check() { # name, command...
   local name="$1"; shift
@@ -58,7 +59,7 @@ check "messages point to the configured example" eval 'grep -q "Follow the patte
 fixed="$work/shop-fixed"
 cp -r "$repo" "$fixed"
 rm -rf "$fixed/bin" "$fixed/obj"   # the copied restore output points at the other folder
-dotnet format analyzers "$fixed" --diagnostics TAC001 TAC002 TAC005 TAC010 TAC012 TAC013 TAC030 --severity warn -v diag > "$work/format.log" 2>&1 || { cat "$work/format.log"; exit 1; }
+dotnet format analyzers "$(native "$fixed")/Shop.Domain.csproj" --diagnostics TAC001 TAC002 TAC005 TAC010 TAC012 TAC013 TAC030 --severity warn -v diag > "$work/format.log" 2>&1 || { cat "$work/format.log"; exit 1; }
 check "dotnet format applies every fix it was asked for" eval '! grep -q "Unable to fix" "$work/format.log"'
 dotnet build "$fixed" --no-incremental > "$work/build.log" 2>&1 || { grep -E "error" "$work/build.log" | head -20; echo "  FAIL  the fixed sample does not compile"; exit 1; }
 if [ "$(rules)" != "TAC003 TAC020 TAC021" ]; then echo "  --- dotnet format log"; grep -vE '^[[:space:]]*$' "$work/format.log" | grep -v "warning TAC" | tail -60 | sed 's/^/  | /'; fi
