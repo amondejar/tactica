@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Tactica/Tactica.csproj" />
+    <Project Path="src/Tactica.CodeFixes/Tactica.CodeFixes.csproj" />
     <Project Path="src/Tactica.Tool/Tactica.Tool.csproj" />
   </Folder>
   <Folder Name="/tests/">

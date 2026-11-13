@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.0-preview.1] - 2026-11-13
+
+### Added
+
+- Automatic fixes, in the IDE light bulb (one finding, or all in a document, project or solution) and in
+  `dotnet format analyzers --diagnostics <ids>`:
+  - TAC001: make the setter or field private.
+  - TAC002: move the collection to a private field and expose a read-only view; uses inside the type move to the field.
+  - TAC005: make the parameterless constructor private, or add a private one.
+  - TAC010: remove the value object's setter, or make the field readonly.
+  - TAC012: add the missing member to `GetEqualityComponents()`.
+  - TAC013: generate `Equals` and `GetHashCode`.
+  - TAC030: turn the event's `set` into `init`, or make the field readonly.
+- The fixes ship in `Tactica.CodeFixes.dll`, next to the analyzers in the same package.
+
 ## [0.1.0-preview.1] - 2026-11-13
 
 First preview.

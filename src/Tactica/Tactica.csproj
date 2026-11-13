@@ -16,7 +16,7 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <NoWarn>$(NoWarn);NU5128;RS2008</NoWarn>
-    <Description>Roslyn analyzers for the tactical patterns of Domain-Driven Design: aggregates that guard their state, value objects that are immutable and compared by value, aggregates referenced by id, repositories only for aggregate roots, and domain events raised by their aggregate. Works with your own base classes. Each warning tells a coding agent what to write instead.</Description>
+    <Description>Roslyn analyzers for the tactical patterns of Domain-Driven Design: aggregates that guard their state, value objects that are immutable and compared by value, aggregates referenced by id, repositories only for aggregate roots, and domain events raised by their aggregate. Works with your own base classes. Each warning tells a coding agent what to write instead, and the mechanical ones have automatic fixes (IDE light bulb or dotnet format).</Description>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TacticaOfflineRoslyn)' != 'true'">
@@ -29,8 +29,14 @@
     <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.CSharp.dll" Private="false" />
   </ItemGroup>
 
+  <!-- Built first and packed next to the analyzers; the analyzers themselves do not reference it. -->
+  <ItemGroup>
+    <ProjectReference Include="../Tactica.CodeFixes/Tactica.CodeFixes.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="../Tactica.CodeFixes/$(OutputPath)Tactica.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="buildTransitive/**" Pack="true" PackagePath="buildTransitive/" />
     <None Include="buildTransitive/Tactica.props" Pack="true" PackagePath="build/" />
     <None Include="buildTransitive/Tactica.targets" Pack="true" PackagePath="build/" />

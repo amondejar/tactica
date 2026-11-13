@@ -35,27 +35,30 @@ Add it to the projects that contain the domain model, or to all projects in `Dir
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="Tactica" Version="0.1.0-preview.1" PrivateAssets="all" />
+  <PackageReference Include="Tactica" Version="0.2.0-preview.1" PrivateAssets="all" />
 </ItemGroup>
 ```
 
 ## Rules
 
-| Rule | Checks | Severity |
-|---|---|---|
-| [TAC001](docs/rules.md#tac001) | Aggregate or entity state has a public or internal setter (or a writable public field) | Warning |
-| [TAC002](docs/rules.md#tac002) | A domain object exposes a mutable collection (`List<T>`, `ICollection<T>`, arrays…) | Warning |
-| [TAC003](docs/rules.md#tac003) | An aggregate or entity holds another aggregate instead of its id | Warning |
-| [TAC005](docs/rules.md#tac005) | An aggregate or entity can be created with a public parameterless constructor | Warning |
-| [TAC006](docs/rules.md#tac006) | An aggregate has data changed through setters and no behavior (anemic model) | Info |
-| [TAC010](docs/rules.md#tac010) | A value object has a settable property or a writable field | Warning |
-| [TAC011](docs/rules.md#tac011) | A value object's method changes its own state after creation | Warning |
-| [TAC012](docs/rules.md#tac012) | A value object member is left out of `GetEqualityComponents()` | Warning |
-| [TAC013](docs/rules.md#tac013) | A value object has no value equality (no record, `Equals` override or value-object base) | Warning |
-| [TAC020](docs/rules.md#tac020) | A repository loads or saves an entity that is not an aggregate root | Warning |
-| [TAC021](docs/rules.md#tac021) | A repository returns `IQueryable` | Warning |
-| [TAC030](docs/rules.md#tac030) | A domain event has a settable property or a writable field | Warning |
-| [TAC031](docs/rules.md#tac031) | A domain event is raised on an aggregate from outside it | Warning |
+| Rule | Checks | Severity | Automatic fix |
+|---|---|---|---|
+| [TAC001](docs/rules.md#tac001) | Aggregate or entity state has a public or internal setter (or a writable public field) | Warning | Make the setter (or field) private |
+| [TAC002](docs/rules.md#tac002) | A domain object exposes a mutable collection (`List<T>`, `ICollection<T>`, arrays…) | Warning | Private field + `IReadOnlyList<T>` view; uses inside the type move to the field |
+| [TAC003](docs/rules.md#tac003) | An aggregate or entity holds another aggregate instead of its id | Warning | — |
+| [TAC005](docs/rules.md#tac005) | An aggregate or entity can be created with a public parameterless constructor | Warning | Make it private, or add `private Order() { }` |
+| [TAC006](docs/rules.md#tac006) | An aggregate has data changed through setters and no behavior (anemic model) | Info | — |
+| [TAC010](docs/rules.md#tac010) | A value object has a settable property or a writable field | Warning | Remove the setter, or make the field `readonly` |
+| [TAC011](docs/rules.md#tac011) | A value object's method changes its own state after creation | Warning | — |
+| [TAC012](docs/rules.md#tac012) | A value object member is left out of `GetEqualityComponents()` | Warning | Add `yield return Member;` |
+| [TAC013](docs/rules.md#tac013) | A value object has no value equality (no record, `Equals` override or value-object base) | Warning | Generate `Equals` and `GetHashCode` |
+| [TAC020](docs/rules.md#tac020) | A repository loads or saves an entity that is not an aggregate root | Warning | — |
+| [TAC021](docs/rules.md#tac021) | A repository returns `IQueryable` | Warning | — |
+| [TAC030](docs/rules.md#tac030) | A domain event has a settable property or a writable field | Warning | `set` → `init`, or make the field `readonly` |
+| [TAC031](docs/rules.md#tac031) | A domain event is raised on an aggregate from outside it | Warning | — |
+
+Rules without an automatic fix change the design (reference by id, move where an event is raised, split a
+repository): their message says what to do.
 
 Change a severity, or turn a rule off, in `.editorconfig` as with any analyzer:
 
@@ -64,6 +67,24 @@ Change a severity, or turn a rule off, in `.editorconfig` as with any analyzer:
 dotnet_diagnostic.TAC006.severity = none
 dotnet_diagnostic.TAC001.severity = error
 ```
+
+## Automatic fixes
+
+In Visual Studio, Rider or VS Code, the light bulb on a finding offers its fix, for one finding or for all of them in
+a document, project or solution.
+
+From the command line, `dotnet format` applies every mechanical fix at once:
+
+```bash
+dotnet format analyzers --diagnostics TAC001 TAC002 TAC005 TAC010 TAC012 TAC013 TAC030 --severity warn
+```
+
+Run it in the folder of the solution or project (or pass its path). On Windows, pass the path with backslashes, or
+run it from the folder: dotnet format quietly skips a project given as `C:/…/App.csproj`.
+
+Then build: what remains are the design findings, and the places that relied on what the fixes closed. Making a
+setter private breaks the code that set it from outside: that code has to call a method of the aggregate instead.
+That is the point, and the compiler lists every such place.
 
 ## How it finds your model
 
@@ -124,8 +145,8 @@ edits elsewhere in the file. Fix findings over time and run `dotnet tactica base
 
 ## For coding agents
 
-Tactica reports; it does not fix anything by itself. Whether an agent fixes a finding depends on two things: whether
-it is told to, and whether it can finish its task without doing it. Agents often treat a build with warnings as a
+Tactica does not change code on its own: it reports, and its fixes run when someone applies them. Whether an agent
+fixes a finding depends on two things: whether it is told to, and whether it can finish its task without doing it. Agents often treat a build with warnings as a
 successful build, so a plain warning is not enough. Set up both:
 
 **1. Make the rules errors**, so the build fails, the agent cannot finish, and a pull request does not pass CI until
@@ -156,6 +177,8 @@ Findings accepted in `tactica.baseline` are not reported, so this works on an ex
 
 The domain model follows the tactical DDD patterns, and the build checks them with Tactica (TAC0xx diagnostics).
 - Fix every TAC diagnostic in code you write or change: its message says what to write instead.
+- For many findings at once, run `dotnet format analyzers --diagnostics TAC001 TAC002 TAC005 TAC010 TAC012 TAC013 TAC030 --severity warn`,
+  then build and fix what remains by hand.
 - Do not suppress them (#pragma, [SuppressMessage], .editorconfig) and do not add entries to tactica.baseline.
 - Do not fix TAC findings in code unrelated to your task unless asked to.
 ```
@@ -166,7 +189,7 @@ What to expect:
 |---|---|
 | The agent writes code that breaks a rule | The build fails with the message; the agent fixes it before finishing |
 | A pull request from a cloud agent (e.g. Copilot) breaks a rule | CI fails; comment "fix the CI" on the pull request |
-| Findings that were already there | Not touched unless you ask ("fix the TAC findings in the Domain project"); accept them with `dotnet tactica baseline` meanwhile |
+| Findings that were already there | Not touched unless you ask ("fix the TAC findings in the Domain project"); `dotnet format` does the mechanical part. Accept them with `dotnet tactica baseline` meanwhile |
 | A human in Visual Studio or Rider | The finding shows as you type |
 
 ## Tested on real code
@@ -179,8 +202,8 @@ all reported. `samples/Shop` shows the common mistakes next to a well-formed mod
 ## Build
 
 ```bash
-dotnet run --project tests/Tactica.Tests     # rule tests
-tests/e2e/run.sh                             # pack, build the sample, baseline
+dotnet run --project tests/Tactica.Tests     # rule and code-fix tests
+tests/e2e/run.sh                             # pack, build the sample, dotnet format, baseline
 ```
 
 Without access to nuget.org, add `-p:TacticaOfflineRoslyn=true` to build against the Roslyn assemblies of the SDK.
