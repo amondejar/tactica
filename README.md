@@ -79,6 +79,9 @@ From the command line, `dotnet format` applies every mechanical fix at once:
 dotnet format analyzers --diagnostics TAC001 TAC002 TAC005 TAC010 TAC012 TAC013 TAC030 --severity warn
 ```
 
+Run it in the folder of the solution or project (or pass its path). On Windows, pass the path with backslashes, or
+run it from the folder: dotnet format quietly skips a project given as `C:/…/App.csproj`.
+
 Then build: what remains are the design findings, and the places that relied on what the fixes closed. Making a
 setter private breaks the code that set it from outside: that code has to call a method of the aggregate instead.
 That is the point, and the compiler lists every such place.
