@@ -124,15 +124,50 @@ edits elsewhere in the file. Fix findings over time and run `dotnet tactica base
 
 ## For coding agents
 
-Add this to your `AGENTS.md`, `CLAUDE.md` or `.github/copilot-instructions.md`:
+Tactica reports; it does not fix anything by itself. Whether an agent fixes a finding depends on two things: whether
+it is told to, and whether it can finish its task without doing it. Agents often treat a build with warnings as a
+successful build, so a plain warning is not enough. Set up both:
+
+**1. Make the rules errors**, so the build fails, the agent cannot finish, and a pull request does not pass CI until
+the model is right. In `.editorconfig`:
+
+```ini
+[*.cs]
+dotnet_diagnostic.TAC001.severity = error
+dotnet_diagnostic.TAC002.severity = error
+dotnet_diagnostic.TAC003.severity = error
+dotnet_diagnostic.TAC005.severity = error
+dotnet_diagnostic.TAC010.severity = error
+dotnet_diagnostic.TAC011.severity = error
+dotnet_diagnostic.TAC012.severity = error
+dotnet_diagnostic.TAC013.severity = error
+dotnet_diagnostic.TAC020.severity = error
+dotnet_diagnostic.TAC021.severity = error
+dotnet_diagnostic.TAC030.severity = error
+dotnet_diagnostic.TAC031.severity = error
+```
+
+Findings accepted in `tactica.baseline` are not reported, so this works on an existing code base too.
+
+**2. Tell the agent what to do with them**, in `AGENTS.md`, `CLAUDE.md` or `.github/copilot-instructions.md`:
 
 ```markdown
 ## Domain model
 
-The domain model follows the tactical DDD patterns and the build checks them with Tactica (warnings TAC0xx).
-Fix every TAC warning in code you touch: the message says what to write instead. Do not suppress them, and do not
-add entries to tactica.baseline.
+The domain model follows the tactical DDD patterns, and the build checks them with Tactica (TAC0xx diagnostics).
+- Fix every TAC diagnostic in code you write or change: its message says what to write instead.
+- Do not suppress them (#pragma, [SuppressMessage], .editorconfig) and do not add entries to tactica.baseline.
+- Do not fix TAC findings in code unrelated to your task unless asked to.
 ```
+
+What to expect:
+
+| Situation | What happens |
+|---|---|
+| The agent writes code that breaks a rule | The build fails with the message; the agent fixes it before finishing |
+| A pull request from a cloud agent (e.g. Copilot) breaks a rule | CI fails; comment "fix the CI" on the pull request |
+| Findings that were already there | Not touched unless you ask ("fix the TAC findings in the Domain project"); accept them with `dotnet tactica baseline` meanwhile |
+| A human in Visual Studio or Rider | The finding shows as you type |
 
 ## Tested on real code
 
