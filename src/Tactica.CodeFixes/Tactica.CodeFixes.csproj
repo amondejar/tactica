@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The code fixes, in their own assembly: they need the Roslyn Workspaces, which the command-line compiler does not
+    load. Shipped in the Tactica package next to the analyzers (see src/Tactica/Tactica.csproj).
+  -->
+  <PropertyGroup>
+    <TargetFramework Condition="'$(TacticaOfflineRoslyn)' != 'true'">netstandard2.0</TargetFramework>
+    <TargetFramework Condition="'$(TacticaOfflineRoslyn)' == 'true'">net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TacticaOfflineRoslyn)' != 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TacticaOfflineRoslyn)' == 'true'">
+    <Reference Include="Microsoft.CodeAnalysis" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.dll" Private="false" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.CSharp.dll" Private="false" />
+    <Reference Include="Microsoft.CodeAnalysis.Workspaces" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.Workspaces.dll" Private="false" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.CSharp.Workspaces.dll" Private="false" />
+    <Reference Include="System.Composition.AttributedModel" HintPath="$(TacticaRoslynDir)System.Composition.AttributedModel.dll" Private="false" />
+  </ItemGroup>
+
+</Project>

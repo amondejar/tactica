@@ -54,6 +54,15 @@ check "the sample's mistakes are reported: $actual" eval '[ "$actual" = "$expect
 check "the well-formed Orders model has no findings" eval '! grep -q "Orders/Order.cs(" "$work/build.log"'
 check "messages point to the configured example" eval 'grep -q "Follow the pattern in samples/Shop/Orders/Order.cs" "$work/build.log"'
 
+# The code fixes, from the command line: dotnet format applies every mechanical fix; the design findings remain.
+fixed="$work/shop-fixed"
+cp -r "$repo" "$fixed"
+dotnet format analyzers "$fixed" --diagnostics TAC001 TAC002 TAC005 TAC010 TAC012 TAC013 TAC030 --severity warn > "$work/format.log" 2>&1 || { cat "$work/format.log"; exit 1; }
+check "dotnet format applies every fix it was asked for" eval '! grep -q "Unable to fix" "$work/format.log"'
+dotnet build "$fixed" --no-incremental > "$work/build.log" 2>&1 || { grep -E "error" "$work/build.log" | head -20; echo "  FAIL  the fixed sample does not compile"; exit 1; }
+check "the fixed sample compiles and only the design findings remain: $(rules)" eval '[ "$(rules)" = "TAC003 TAC020 TAC021" ]'
+check "aggregate state is private and collections are read-only" eval 'grep -q "public decimal Total { get; private set; }" "$fixed/Billing/Invoice.cs" && grep -q "public IReadOnlyList<string> Payments => _payments;" "$fixed/Billing/Invoice.cs"'
+
 dotnet tool install Tactica.Tool --version "$version" --tool-path "$work/tools" --add-source "$feed" > "$work/tool.log" 2>&1 || { cat "$work/tool.log"; exit 1; }
 (cd "$repo" && "$work/tools/tactica" baseline > "$work/baseline.log" 2>&1) || { cat "$work/baseline.log"; exit 1; }
 check "tactica baseline writes tactica.baseline at the repository root" eval '[ -f "$repo/tactica.baseline" ]'

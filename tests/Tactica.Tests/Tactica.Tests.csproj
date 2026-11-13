@@ -14,15 +14,23 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/Tactica/Tactica.csproj" />
+    <ProjectReference Include="../../src/Tactica.CodeFixes/Tactica.CodeFixes.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TacticaOfflineRoslyn)' != 'true'">
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TacticaOfflineRoslyn)' == 'true'">
     <Reference Include="Microsoft.CodeAnalysis" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.dll" />
     <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.CSharp.dll" />
+    <Reference Include="Microsoft.CodeAnalysis.Workspaces" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.Workspaces.dll" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" HintPath="$(TacticaRoslynDir)Microsoft.CodeAnalysis.CSharp.Workspaces.dll" />
+    <Reference Include="System.Composition.AttributedModel" HintPath="$(TacticaRoslynDir)System.Composition.AttributedModel.dll" />
+    <Reference Include="System.Composition.Convention" HintPath="$(TacticaRoslynDir)System.Composition.Convention.dll" />
+    <Reference Include="System.Composition.Hosting" HintPath="$(TacticaRoslynDir)System.Composition.Hosting.dll" />
+    <Reference Include="System.Composition.Runtime" HintPath="$(TacticaRoslynDir)System.Composition.Runtime.dll" />
+    <Reference Include="System.Composition.TypedParts" HintPath="$(TacticaRoslynDir)System.Composition.TypedParts.dll" />
   </ItemGroup>
 
 </Project>
